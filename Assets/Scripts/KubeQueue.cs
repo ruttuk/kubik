@@ -14,19 +14,21 @@ public class KubeQueue : MonoBehaviour
         {
             Instance = this;
         }
+
+        InitializeQueue();
     }
     #endregion
 
     public GameObject KubeObject;
     public GameObject Kubik;
+    public FlexibleColorPicker colorPicker;
 
     private Kube[] AllKubes;
     private Queue<Kube> KQueue;
-    private const int queueSize = 16;
+    private const int queueSize = 64;
 
     void Start()
     {
-        InitializeQueue();
         SetStartingKube();
     }
 
@@ -35,6 +37,7 @@ public class KubeQueue : MonoBehaviour
         Kube startingKube = KQueue.Dequeue();
         startingKube.transform.position = Vector3.zero;
         startingKube.gameObject.SetActive(true);
+        startingKube.SetKubeColor(colorPicker.startingColor);
     }
 
     private void InitializeQueue()
@@ -61,8 +64,9 @@ public class KubeQueue : MonoBehaviour
         {
             Kube kube = KQueue.Dequeue();
             kube.transform.position = location;
+            kube.SetKubeColor(colorPicker.color);
             kube.gameObject.SetActive(true);
-            Debug.Log($"Dequeuing... Kubes remaining in KQueue: {KQueue.Count}");
+            Debug.Log($"Dequeuing with color {colorPicker.color}... Kubes remaining in KQueue: {KQueue.Count}");
         }
     }
 
@@ -73,13 +77,13 @@ public class KubeQueue : MonoBehaviour
         kube.DeactivateKube();
     }
 
-    public void ToggleKubeFaceColliders()
+    public void ToggleKubeFaceColliders(bool faceCollidersOn)
     {
         for (int i = 0; i < AllKubes.Length; i++)
         {
             if(AllKubes[i].gameObject.activeSelf)
             {
-                AllKubes[i].ToggleColliders();
+                AllKubes[i].ToggleColliders(faceCollidersOn);
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class ModeManager : MonoBehaviour
 {
@@ -17,45 +18,62 @@ public class ModeManager : MonoBehaviour
     }
     #endregion
 
-    public enum GameMode
-    {
-        Append,
-        Delete,
-        Paint
-    }
-
     public GameMode currentGameMode;
+    public TextMeshProUGUI modeText;
 
     private KubeQueue kubeQueue;
+
+    private const string modePrefix = "m::";
 
     void Start()
     {
         kubeQueue = KubeQueue.Instance;
-        currentGameMode = GameMode.Append;
+        currentGameMode = GameMode.Default;
+        SetGameMode(GameMode.Append, true);
     }
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Alpha1) && currentGameMode != GameMode.Append)
+        if(Input.GetKeyDown(KeyCode.Alpha1))
         {
-            currentGameMode = GameMode.Append;
-            ToggleKubeFaceColliders();
+            SetGameMode(GameMode.Append, true);
         }
-        else if(Input.GetKeyDown(KeyCode.Alpha2) && currentGameMode != GameMode.Delete)
+        else if(Input.GetKeyDown(KeyCode.Alpha2))
         {
-            currentGameMode = GameMode.Delete;
-            ToggleKubeFaceColliders();
+            SetGameMode(GameMode.Delete, false);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SetGameMode(GameMode.Paint, true);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            SetGameMode(GameMode.Sample, true);
         }
     }
 
-    /***
-     * 
-     * All face colliders must be switched off, kube colliders switched on.
-     * 
-     ***/
-    void ToggleKubeFaceColliders()
+    void SetGameMode(GameMode mode, bool faceCollidersOn)
+    {
+        if(mode != currentGameMode)
+        {
+            modeText.text = modePrefix + mode.ToString();
+            currentGameMode = mode;
+            ToggleKubeFaceColliders(faceCollidersOn);
+        }
+    }
+
+    void ToggleKubeFaceColliders(bool faceCollidersOn)
     {
         Debug.Log($"Current Game Mode: {currentGameMode}");
-        kubeQueue.ToggleKubeFaceColliders();
+        kubeQueue.ToggleKubeFaceColliders(faceCollidersOn);
     }
+}
+
+public enum GameMode
+{
+    Default,
+    Append,
+    Delete,
+    Paint,
+    Sample
 }

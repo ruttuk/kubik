@@ -13,13 +13,23 @@ public class Kube : MonoBehaviour
     {
         KubeQueue = KubeQueue.Instance;
         kubeCollider = GetComponent<BoxCollider>();
-        faces = GetComponentsInChildren<Face>();
         kubeCollider.enabled = false;
+        faces = GetComponentsInChildren<Face>();
     }
 
     void OnMouseDown()
     {
         KubeQueue.DisableKube(this);
+    }
+
+    public void SetKubeColor(Color color)
+    {
+        faces = GetComponentsInChildren<Face>();
+
+        for (int i = 0; i < faces.Length; i++)
+        {
+            faces[i].GetComponent<MeshRenderer>().material.color = color;
+        }
     }
 
     public void DeactivateKube()
@@ -29,11 +39,11 @@ public class Kube : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void ToggleColliders()
+    public void ToggleColliders(bool faceCollidersOn)
     {
         Debug.Log("Toggling Colliders...");
-        kubeCollider.enabled = !kubeCollider.enabled;
-        ToggleFaceColliders(!kubeCollider.enabled);
+        kubeCollider.enabled = !faceCollidersOn;
+        ToggleFaceColliders(faceCollidersOn);
     }
 
     private void ToggleFaceColliders(bool toggle)
