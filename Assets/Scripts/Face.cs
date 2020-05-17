@@ -9,6 +9,7 @@ public class Face : MonoBehaviour
     private KubeQueue KubeQueue;
     private ModeManager ModeManager;
     private FlexibleColorPicker colorPicker;
+    private PointerKube pointerKube;
 
     MeshRenderer m_Renderer;
 
@@ -16,9 +17,21 @@ public class Face : MonoBehaviour
     {
         KubeQueue = KubeQueue.Instance;
         ModeManager = ModeManager.Instance;
+
         colorPicker = FindObjectOfType<FlexibleColorPicker>();
+        pointerKube = PointerKube.Instance;
 
         m_Renderer = GetComponent<MeshRenderer>();
+    }
+
+    void OnMouseEnter()
+    {
+        if(!ModeManager.currentlyRotating)
+        {
+            pointerKube.ToggleRenderer(true);
+            pointerKube.transform.position = transform.position - (transform.forward * 0.5f);
+            pointerKube.transform.rotation = transform.rotation;
+        }
     }
 
     void OnMouseDown()
@@ -44,5 +57,10 @@ public class Face : MonoBehaviour
             }
 
         }
+    }
+
+    void OnMouseExit()
+    {
+        pointerKube.ToggleRenderer(false);
     }
 }

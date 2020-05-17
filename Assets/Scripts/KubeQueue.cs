@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class KubeQueue : MonoBehaviour
 {
@@ -22,14 +23,18 @@ public class KubeQueue : MonoBehaviour
     public GameObject KubeObject;
     public GameObject Kubik;
     public FlexibleColorPicker colorPicker;
+    public TextMeshProUGUI remainingKubesText;
 
     private Kube[] AllKubes;
     private Queue<Kube> KQueue;
+
     private const int queueSize = 64;
+    public const string pointerKubeTag = "PointerKube";
 
     void Start()
     {
         SetStartingKube();
+        SetRemainingKubesText();
     }
 
     private void SetStartingKube()
@@ -67,6 +72,7 @@ public class KubeQueue : MonoBehaviour
             kube.SetKubeColor(colorPicker.color);
             kube.gameObject.SetActive(true);
             Debug.Log($"Dequeuing with color {colorPicker.color}... Kubes remaining in KQueue: {KQueue.Count}");
+            SetRemainingKubesText();
         }
     }
 
@@ -75,6 +81,7 @@ public class KubeQueue : MonoBehaviour
         KQueue.Enqueue(kube);
         Debug.Log($"Enqueuing... Kubes remaining in KQueue: {KQueue.Count}");
         kube.DeactivateKube();
+        SetRemainingKubesText();
     }
 
     public void ToggleKubeFaceColliders(bool faceCollidersOn)
@@ -86,5 +93,10 @@ public class KubeQueue : MonoBehaviour
                 AllKubes[i].ToggleColliders(faceCollidersOn);
             }
         }
+    }
+
+    void SetRemainingKubesText()
+    {
+        remainingKubesText.text = KQueue.Count.ToString() + "/" + queueSize.ToString();
     }
 }

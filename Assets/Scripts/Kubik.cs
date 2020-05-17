@@ -9,13 +9,22 @@ public class Kubik : MonoBehaviour
     public float mouseScrollZoomDampen = 2f;
     public float orthographicMax = 30f;
     public float orthographicMin = 3f;
-
+    public float perspectiveMin = 5f;
+    public float perspectiveMax = 50f;
 
     private Camera mainCamera;
+    private Camera exportCamera;
+    private PointerKube pointerKube;
+    private ModeManager modeManager;
+
+    private const string exportCamTag = "ExportCamera";
 
     void Start()
     {
         mainCamera = Camera.main;
+        pointerKube = PointerKube.Instance;
+        modeManager = ModeManager.Instance;
+        exportCamera = GameObject.FindGameObjectWithTag(exportCamTag).GetComponent<Camera>();
     }
 
     void Update()
@@ -26,7 +35,10 @@ public class Kubik : MonoBehaviour
             transform.rotation = Quaternion.identity;
         }
 
-        ZoomCameraViaScroll();
+        if(Input.mouseScrollDelta.y != 0)
+        {
+            ZoomCameraViaScroll();
+        }
     }
 
     void FixedUpdate()
@@ -57,16 +69,31 @@ public class Kubik : MonoBehaviour
 
     void RotateAroundOrigin(float x, float y)
     {
+        // If we are rotating the Kubik, disable the PointerKube, it looks clunky otherwise.
+        modeManager.currentlyRotating = x != 0f || y != 0f;
+
         transform.Rotate(Vector3.up, -x);
         transform.Rotate(Vector3.right, -y);
     }
 
     void ZoomCameraViaScroll()
     {
-        if(mainCamera.orthographic && Input.mouseScrollDelta.y != 0)
+        if(mainCamera.orthographic)
         {
             float zoomedOrthoSize = mainCamera.orthographicSize - Input.mouseScrollDelta.y * mouseScrollZoomDampen;
             mainCamera.orthographicSize = Mathf.Clamp(zoomedOrthoSize, orthographicMin, orthographicMax);
+            exportCamera.orthographicSize = mainCamera.orthographicSize;
+        }
+        else
+        {
+            Vector3 zoomedPerspectivePos = mainCamera.transform.position + mainCamera.transform.forward * Input.mouseScrollDelta.y * mouseScrollZoomDampen;
+            float distanceToKubik = Vector3.Distance(transform.position, zoomedPerspectivePos);
+            float buffer = 0.5f;
+
+            if(distanceToKubik >= perspectiveMin + buffer && distanceToKubik <= perspectiveMax - buffer)
+            {
+                mainCamera.transform.position = zoomedPerspectivePos;
+            }
         }
     }
 }
